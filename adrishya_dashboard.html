@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adrishya | Defense Video Redaction Command Center</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #090d16;
+      color: #e2e8f0;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    .scanline {
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(15, 23, 42, 0.25) 50%,
+        rgba(15, 23, 42, 0.25)
+      );
+      background-size: 100% 4px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#090d16] text-slate-100 selection:bg-cyan-500/30">
+
+  <!-- Top Tactical Header -->
+  <header class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-700 flex items-center justify-center shadow-lg shadow-cyan-500/20 font-bold text-lg tracking-wider">
+          AD
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-base sm:text-lg tracking-tight text-white">ADRISHYA COMMAND CENTER</h1>
+            <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 mono">
+              v2.0 DUAL-TIER
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Intelligent Multi-Object Video Blurring for Privacy-Preserving Defense Services</p>
+        </div>
+      </div>
+
+      <!-- Connection & Status Pill -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div id="connectionBadge" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium">
+          <span id="connectionDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span id="connectionText">SIMULATION ENGINE ACTIVE</span>
+        </div>
+        <button id="btnToggleBackendModal" type="button" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 transition">
+          Backend Settings
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-7xl mx-auto px-4 flex gap-1 overflow-x-auto border-t border-slate-900">
+      <button type="button" data-tab="tab-live" class="nav-tab px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 border-cyan-400 text-cyan-300 whitespace-nowrap transition">
+        1. Live Feed &amp; Policy Matrix
+      </button>
+      <button type="button" data-tab="tab-vault" class="nav-tab px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition">
+        2. Cryptographic Vault &amp; Forensic Restore
+      </button>
+      <button type="button" data-tab="tab-analytics" class="nav-tab px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition">
+        3. Telemetry &amp; Performance
+      </button>
+      <button type="button" data-tab="tab-guide" class="nav-tab px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition">
+        4. Launch &amp; Mobile Guide
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-5 space-y-6">
+
+    <!-- Top KPI Strip -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5">
+        <div class="text-xs text-slate-400 flex items-center justify-between">
+          <span>PROCESSING FPS</span>
+          <span class="mono text-[11px] text-cyan-400">EMA SMOOTHED</span>
+        </div>
+        <div id="kpiFps" class="text-2xl font-bold text-white mt-1 mono">28.4</div>
+        <div class="text-[11px] text-slate-400 mt-1">ByteTrack + Hybrid Face/YOLO</div>
+      </div>
+
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5">
+        <div class="text-xs text-slate-400 flex items-center justify-between">
+          <span>SOFT REDACTIONS</span>
+          <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] mono">REVERSIBLE</span>
+        </div>
+        <div id="kpiSoftCount" class="text-2xl font-bold text-amber-400 mt-1 mono">3</div>
+        <div class="text-[11px] text-slate-400 mt-1">256-Bit SHA256-CTR + HMAC Vault</div>
+      </div>
+
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5">
+        <div class="text-xs text-slate-400 flex items-center justify-between">
+          <span>HARD REDACTIONS</span>
+          <span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] mono">PERMANENT</span>
+        </div>
+        <div id="kpiHardCount" class="text-2xl font-bold text-rose-400 mt-1 mono">2</div>
+        <div class="text-[11px] text-slate-400 mt-1">Zero Recovery Copy Retained</div>
+      </div>
+
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5">
+        <div class="text-xs text-slate-400 flex items-center justify-between">
+          <span>VAULT PACKETS STORED</span>
+          <span id="kpiKeyStatus" class="mono text-[11px] text-emerald-400">KEY: ACTIVE</span>
+        </div>
+        <div id="kpiVaultRecords" class="text-2xl font-bold text-emerald-400 mt-1 mono">0</div>
+        <div class="text-[11px] text-slate-400 mt-1">Lossless PNG Encrypted ROIs</div>
+      </div>
+    </section>
+
+    <!-- TAB 1: LIVE FEED & POLICY MATRIX -->
+    <section id="tab-live" class="tab-panel grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <!-- Left 7 Cols: Video Viewport & Tactical Controls -->
+      <div class="lg:col-span-7 flex flex-col gap-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+          <!-- Stream Header Bar -->
+          <div class="px-4 py-2.5 bg-slate-950 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+              <span class="text-xs font-semibold tracking-wide uppercase text-slate-200">Tactical Feed Viewport</span>
+              <span id="streamSourceLabel" class="text-xs text-slate-400 mono">[Simulated Defense Ops Room]</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button id="btnSourceSim" type="button" class="px-2.5 py-1 rounded text-xs font-medium bg-cyan-600 text-white transition">
+                Interactive Sim
+              </button>
+              <button id="btnSourceFastApi" type="button" class="px-2.5 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+                FastAPI Stream (/stream)
+              </button>
+            </div>
+          </div>
+
+          <!-- Canvas / MJPEG Stream Container -->
+          <div class="relative bg-black aspect-video w-full flex items-center justify-center overflow-hidden">
+            <canvas id="simCanvas" width="768" height="432" class="w-full h-full object-contain block"></canvas>
+            <img id="mjpegStreamImg" alt="Live FastAPI MJPEG Stream" class="w-full h-full object-contain hidden" />
+            <div id="streamErrorOverlay" class="hidden absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center p-6 text-center">
+              <p class="text-sm font-semibold text-rose-400 mb-1">FastAPI Stream Unreachable at <span id="errApiUrl" class="mono">http://localhost:8000</span></p>
+              <p class="text-xs text-slate-400 max-w-md mb-4">
+                Start your Python backend in PowerShell with <code class="mono text-cyan-300 bg-slate-900 px-1.5 py-0.5 rounded">python main.py --mode api</code>, or switch back to the Interactive Simulation to test policies right now.
+              </p>
+              <button id="btnFallbackToSim" type="button" class="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-semibold text-white transition">
+                Return to Interactive Simulation
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Operator Bar -->
+          <div class="p-3.5 bg-slate-950 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs text-slate-400 font-medium">Global Style Override:</span>
+              <button type="button" data-style-override="DEFAULT" class="style-override-btn px-2.5 py-1 rounded text-xs font-semibold bg-cyan-600 text-white">
+                Policy Default
+              </button>
+              <button type="button" data-style-override="GAUSSIAN" class="style-override-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">
+                Gaussian Blur
+              </button>
+              <button type="button" data-style-override="PIXELATE" class="style-override-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">
+                Pixelate
+              </button>
+              <button type="button" data-style-override="SOLID" class="style-override-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">
+                Solid Block
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button id="btnToggleBoxes" type="button" class="px-2.5 py-1 rounded text-xs font-medium bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30">
+                Boxes: ON
+              </button>
+              <button id="btnPauseSim" type="button" class="px-2.5 py-1 rounded text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">
+                Pause Feed
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active ByteTrack Entities Table -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-semibold text-white">Active ByteTrack Trajectories &amp; Persistence State</h2>
+            <span class="text-xs text-slate-400 mono">Max Dropout Memory: 8 frames</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400">
+                  <th class="py-2 px-2.5 font-medium">Track ID</th>
+                  <th class="py-2 px-2.5 font-medium">Detected Class</th>
+                  <th class="py-2 px-2.5 font-medium">Security Tier</th>
+                  <th class="py-2 px-2.5 font-medium">Active Mask</th>
+                  <th class="py-2 px-2.5 font-medium">Bounding Box</th>
+                  <th class="py-2 px-2.5 font-medium text-right">Confidence</th>
+                </tr>
+              </thead>
+              <tbody id="activeTracksTableBody" class="divide-y divide-slate-800/60 mono">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right 5 Cols: Security Policy Decision Engine -->
+      <div class="lg:col-span-5 flex flex-col gap-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex-1 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <h2 class="text-sm font-bold text-white uppercase tracking-wider">Security Policy Decision Engine</h2>
+              <button id="btnResetPolicies" type="button" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">
+                Reset Defaults
+              </button>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">
+              Configure how each sensitive class is classified. Changes update both the live viewport and your FastAPI server (<code class="mono text-slate-300">POST /policies</code>).
+            </p>
+
+            <!-- Policy Cards Container -->
+            <div id="policyCardsContainer" class="space-y-3"></div>
+          </div>
+
+          <!-- Global Tier Emergency Switch -->
+          <div class="mt-5 pt-4 border-t border-slate-800">
+            <div class="text-xs font-semibold text-slate-300 mb-2">Emergency Command Override (All Classes)</div>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" data-tier-override="DEFAULT" class="tier-override-btn py-2 px-3 rounded-lg text-xs font-semibold bg-cyan-600 text-white border border-cyan-500/40">
+                Policy Rules
+              </button>
+              <button type="button" data-tier-override="SOFT" class="tier-override-btn py-2 px-3 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30">
+                Force All SOFT
+              </button>
+              <button type="button" data-tier-override="HARD" class="tier-override-btn py-2 px-3 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-500/30">
+                Force All HARD
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: CRYPTOGRAPHIC VAULT & FORENSIC RESTORATION -->
+    <section id="tab-vault" class="tab-panel hidden space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Forensic Key Verification & Side-by-Side Preview -->
+        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base font-bold text-white">Authorized Forensic Restoration Console</h2>
+              <p class="text-xs text-slate-400">
+                Decrypt <span class="text-amber-300 font-medium">SOFT-masked</span> regions using the 256-bit cryptographic key while <span class="text-rose-400 font-medium">HARD-masked</span> regions remain permanently redacted.
+              </p>
+            </div>
+            <span id="restoreAuthBadge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30 mono">
+              LOCKED (REDACTED VIEW)
+            </span>
+          </div>
+
+          <!-- Key Input Bar -->
+          <div class="flex flex-col sm:flex-row gap-2 pt-1">
+            <input
+              id="forensicKeyInput"
+              type="text"
+              value="adrishya-256bit-defense-master-key-9f8e7d6c5b4a"
+              placeholder="Enter 256-bit secret.key value..."
+              class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs mono text-emerald-300 focus:outline-none focus:border-cyan-500"
+            />
+            <button id="btnToggleForensicRestore" type="button" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition whitespace-nowrap">
+              Authenticate &amp; Restore SOFT Regions
+            </button>
+            <button id="btnSimulateWrongKey" type="button" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-500/30 text-xs font-medium transition whitespace-nowrap">
+              Test Invalid Key
+            </button>
+          </div>
+
+          <!-- Forensic Comparison Canvas -->
+          <div class="relative bg-black rounded-xl overflow-hidden border border-slate-800 aspect-video">
+            <canvas id="forensicCanvas" width="768" height="432" class="w-full h-full object-contain block"></canvas>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25">
+              <div class="font-semibold text-amber-300 mb-1">Soft Masking (Reversible Tier)</div>
+              <p class="text-slate-300">
+                Isolates personnel faces &amp; tactical monitors, compresses raw ROI as lossless PNG, encrypts with <strong>SHA-256 CTR + HMAC-SHA256</strong>, and stores in <code class="mono">recovery_vault.adrishya</code>.
+              </p>
+            </div>
+            <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/25">
+              <div class="font-semibold text-rose-300 mb-1">Hard Masking (Irreversible Tier)</div>
+              <p class="text-slate-300">
+                Overwrites confidential documents &amp; mobile screens in-place with permanent pixelation or solid slate blocks and immediately purges raw pixels from memory (<code class="mono">del roi</code>).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Encrypted Vault Stream Inspector -->
+        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider">Live Encrypted Vault Packets</h3>
+              <button id="btnClearVaultLog" type="button" class="text-xs text-slate-400 hover:text-white">
+                Clear Log
+              </button>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">
+              Real-time binary records appended to <code class="mono text-cyan-300">recovery_vault.adrishya</code> (4-byte big-endian length prefix + Nonce + HMAC-SHA256 Tag + Ciphertext).
+            </p>
+
+            <div id="vaultPacketsList" class="space-y-2 max-h-[380px] overflow-y-auto pr-1 mono text-[11px]">
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <span>Cipher: <strong class="text-slate-200">256-Bit AEAD / Fernet</strong></span>
+            <span>Integrity: <strong class="text-emerald-400">HMAC-SHA256 Verified</strong></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: TELEMETRY & PERFORMANCE -->
+    <section id="tab-analytics" class="tab-panel hidden space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 class="text-sm font-bold text-white uppercase tracking-wider">Real-Time Redaction Throughput &amp; Latency Telemetry</h2>
+              <p class="text-xs text-slate-400">Rolling frame rate (FPS) and Soft vs. Hard masked entity counts per frame</p>
+            </div>
+          </div>
+          <div class="relative h-72 w-full">
+            <canvas id="telemetryChart"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-white uppercase tracking-wider mb-1">Class Redaction Breakdown</h2>
+            <p class="text-xs text-slate-400 mb-4">Cumulative redactions by sensitive object category</p>
+            <div id="classBreakdownList" class="space-y-3"></div>
+          </div>
+
+          <div class="mt-6 p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-1.5">
+            <div class="font-semibold text-cyan-300">Hardware &amp; Pipeline Profile</div>
+            <div class="flex justify-between text-slate-400"><span>Detector Stack:</span><span class="text-slate-200 mono">MediaPipe + YOLOv8n</span></div>
+            <div class="flex justify-between text-slate-400"><span>Multi-Object Tracker:</span><span class="text-slate-200 mono">ByteTrack + EMA Buffer</span></div>
+            <div class="flex justify-between text-slate-400"><span>Frame Resolution:</span><span class="text-slate-200 mono">640x480 / 1280x720</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: LAUNCH & MOBILE ACCESS GUIDE -->
+    <section id="tab-guide" class="tab-panel hidden space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <!-- Step-by-Step Forward Process -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <h2 class="text-base font-bold text-white">Forward Process: Running the Full Adrishya Stack</h2>
+          <p class="text-xs text-slate-400">
+            Follow these 4 steps on your Windows laptop to run real-time webcam redaction, launch the FastAPI dashboard server, and demonstrate forensic restoration during your review.
+          </p>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-semibold text-cyan-300">Step 1: Install FastAPI &amp; Uvicorn in your (venv)</span>
+                <button type="button" data-copy="pip install fastapi uvicorn mediapipe cryptography" class="copy-cmd-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200">
+                  Copy
+                </button>
+              </div>
+              <code class="mono text-slate-300 block">pip install fastapi uvicorn mediapipe cryptography</code>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-semibold text-cyan-300">Step 2: Run Direct OpenCV Redaction Window</span>
+                <button type="button" data-copy="python main.py" class="copy-cmd-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200">
+                  Copy
+                </button>
+              </div>
+              <code class="mono text-slate-300 block">python main.py</code>
+              <p class="text-slate-400 mt-1">Opens your webcam, applies Soft/Hard masking, and saves <code class="mono">redacted_output.mp4</code> + <code class="mono">recovery_vault.adrishya</code>.</p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-semibold text-cyan-300">Step 3: Launch FastAPI Server + Web Dashboard</span>
+                <button type="button" data-copy="python main.py --mode api --port 8000" class="copy-cmd-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200">
+                  Copy
+                </button>
+              </div>
+              <code class="mono text-slate-300 block">python main.py --mode api --port 8000</code>
+              <p class="text-slate-400 mt-1">Serves this dashboard at <code class="mono text-emerald-300">http://localhost:8000</code> and live video at <code class="mono text-emerald-300">http://localhost:8000/stream</code>.</p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-semibold text-cyan-300">Step 4: Run Cryptographic Forensic Restoration</span>
+                <button type="button" data-copy="python main.py --mode restore" class="copy-cmd-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200">
+                  Copy
+                </button>
+              </div>
+              <code class="mono text-slate-300 block">python main.py --mode restore</code>
+              <p class="text-slate-400 mt-1">Decrypts <code class="mono">SOFT</code> regions using <code class="mono">secret.key</code> and writes <code class="mono">restored_forensic.mp4</code>.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone Access & Gemini Mobile Sync Guide -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <h2 class="text-base font-bold text-white">Viewing on Your Phone (Gemini Chat + Live Dashboard)</h2>
+          <div class="space-y-3 text-xs text-slate-300">
+            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5">
+              <div class="font-semibold text-amber-300">1. Why This Chat Didn't Appear in the Phone Gemini App</div>
+              <ul class="list-disc list-inside space-y-1 text-slate-400">
+                <li><strong>Account Mismatch:</strong> Check the profile icon in the top-right of your phone's Gemini app and ensure it's logged into the exact same Google account as your laptop browser.</li>
+                <li><strong>Gemini Apps Activity Off:</strong> If Web &amp; App Activity is paused at <code class="mono text-slate-200">myactivity.google.com/product/gemini</code>, chats aren't synced across devices.</li>
+                <li><strong>Canvas Side-Panel Chats:</strong> The mobile app sometimes hides Canvas file cards; open <code class="mono text-slate-200">gemini.google.com</code> in Chrome on your phone (or Pin this chat on desktop) to see the full conversation immediately.</li>
+              </ul>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5">
+              <div class="font-semibold text-emerald-300">2. Open the Live Adrishya Dashboard on Your Phone Over Wi-Fi</div>
+              <p class="text-slate-400">
+                Because <code class="mono text-slate-200">main.py --mode api</code> binds to <code class="mono text-slate-200">0.0.0.0:8000</code>, you can control your laptop's redaction system live from your phone during your project demo:
+              </p>
+              <ol class="list-decimal list-inside space-y-1 text-slate-400">
+                <li>Connect your laptop and phone to the same Wi-Fi / mobile hotspot.</li>
+                <li>In laptop PowerShell, run <code class="mono text-cyan-300">ipconfig</code> and copy your <strong>IPv4 Address</strong> (e.g., <code class="mono">192.168.1.45</code>).</li>
+                <li>Run <code class="mono text-cyan-300">python main.py --mode api --port 8000</code> on your laptop.</li>
+                <li>On your phone browser, open <code class="mono text-emerald-300">http://&lt;your-laptop-ip&gt;:8000</code> to view the live redacted stream and toggle Soft/Hard policies from your phone!</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Backend Connection Modal -->
+  <div id="backendModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white">FastAPI Backend Connection</h3>
+        <button id="btnCloseBackendModal" type="button" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1">
+          ✕
+        </button>
+      </div>
+      <p class="text-xs text-slate-400">
+        Enter the URL where <code class="mono text-cyan-300">python main.py --mode api</code> is running. When connected, policy updates and live MJPEG streaming sync directly with your Python pipeline.
+      </p>
+      <div>
+        <label for="inputApiBaseUrl" class="block text-xs font-medium text-slate-300 mb-1">FastAPI Server URL</label>
+        <input
+          id="inputApiBaseUrl"
+          type="text"
+          value="http://localhost:8000"
+          class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs mono text-white focus:outline-none focus:border-cyan-500"
+        />
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button id="btnTestBackendPing" type="button" class="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-semibold text-white transition">
+          Connect &amp; Sync Policies
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastBanner" class="hidden fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-xl bg-slate-900 border border-cyan-500/40 text-xs font-medium text-slate-100 shadow-2xl">
+    <span id="toastMessage">Policy updated</span>
+  </div>
+
+  <script>
+    // =========================================================================
+    // ADRISHYA COMMAND CENTER STATE & SIMULATION ENGINE
+    // =========================================================================
+    const DEFAULT_POLICIES = {
+      face:             { label: 'Personnel Face',      tier: 'SOFT', style: 'GAUSSIAN', padding: 10 },
+      tactical_display: { label: 'Tactical Display/TV', tier: 'SOFT', style: 'GAUSSIAN', padding: 6 },
+      laptop_screen:    { label: 'Workstation Laptop',  tier: 'SOFT', style: 'GAUSSIAN', padding: 6 },
+      mobile_device:    { label: 'Mobile Phone',        tier: 'HARD', style: 'PIXELATE', padding: 4 },
+      confidential_doc: { label: 'Classified Document', tier: 'HARD', style: 'SOLID',    padding: 8 },
+      input_terminal:   { label: 'Keyboard Terminal',   tier: 'HARD', style: 'PIXELATE', padding: 4 }
+    };
+
+    const state = {
+      apiBaseUrl: (window.location.protocol.startsWith('http') && window.location.port === '8000')
+        ? window.location.origin
+        : 'http://localhost:8000',
+      backendOnline: false,
+      streamMode: 'SIM', // 'SIM' or 'FASTAPI'
+      simPaused: false,
+      drawBoxes: true,
+      styleOverride: 'DEFAULT',
+      tierOverride: 'DEFAULT',
+      forensicUnlocked: false,
+      masterKey: 'adrishya-256bit-defense-master-key-9f8e7d6c5b4a',
+      frameIdx: 1,
+      fpsEma: 28.5,
+      vaultTotalRecords: 0,
+      policies: JSON.parse(JSON.stringify(DEFAULT_POLICIES)),
+      cumulativeCounts: {
+        face: 142,
+        tactical_display: 98,
+        laptop_screen: 86,
+        mobile_device: 64,
+        confidential_doc: 51,
+        input_terminal: 39
+      },
+      vaultLog: [],
+      entities: [
+        { id: 101, cls: 'face',             x: 150, y: 110, w: 86,  h: 102, vx: 1.4,  vy: 0.7,  conf: 0.94, title: 'OFFICER-A' },
+        { id: 102, cls: 'tactical_display', x: 430, y: 55,  w: 240, h: 135, vx: 0.0,  vy: 0.0,  conf: 0.97, title: 'RADAR GRID 04' },
+        { id: 104, cls: 'laptop_screen',    x: 95,  y: 265, w: 155, h: 105, vx: 0.35, vy: 0.0,  conf: 0.91, title: 'SAT-LINK TERM' },
+        { id: 107, cls: 'confidential_doc', x: 320, y: 285, w: 130, h: 95,  vx: -0.5, vy: 0.25, conf: 0.89, title: 'TOP SECRET BRIEF' },
+        { id: 109, cls: 'mobile_device',    x: 560, y: 255, w: 72,  h: 115, vx: -1.1, vy: -0.6, conf: 0.87, title: 'FIELD COMM' }
+      ]
+    };
+
+    let telemetryChart = null;
+
+    function showToast(msg) {
+      const banner = document.getElementById('toastBanner');
+      const text = document.getElementById('toastMessage');
+      text.textContent = msg;
+      banner.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        banner.classList.add('hidden');
+      }, 2800);
+    }
+
+    // -------------------------------------------------------------------------
+    // UI RENDERING: POLICY CARDS & CLASS BREAKDOWN
+    // -------------------------------------------------------------------------
+    function renderPolicyCards() {
+      const container = document.getElementById('policyCardsContainer');
+      container.innerHTML = '';
+
+      Object.keys(state.policies).forEach((clsKey) => {
+        const rule = state.policies[clsKey];
+        const isSoft = rule.tier === 'SOFT';
+        const card = document.createElement('div');
+        card.className = 'p-3 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-2';
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <span class="text-xs font-semibold text-white">${rule.label}</span>
+              <span class="text-[11px] text-slate-400 mono ml-1">(${clsKey})</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <button type="button" data-policy-cls="${clsKey}" data-policy-tier="SOFT"
+                class="px-2 py-0.5 rounded text-[11px] font-semibold transition ${isSoft ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400 hover:text-white'}">
+                SOFT (Encrypted)
+              </button>
+              <button type="button" data-policy-cls="${clsKey}" data-policy-tier="HARD"
+                class="px-2 py-0.5 rounded text-[11px] font-semibold transition ${!isSoft ? 'bg-rose-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}">
+                HARD (Permanent)
+              </button>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-900">
+            <div class="flex items-center gap-1">
+              <span class="text-[11px] text-slate-400 mr-1">Mask:</span>
+              ${['GAUSSIAN', 'PIXELATE', 'SOLID'].map((st) => `
+                <button type="button" data-policy-cls="${clsKey}" data-policy-style="${st}"
+                  class="px-2 py-0.5 rounded text-[10px] mono font-medium transition ${rule.style === st ? 'bg-cyan-600 text-white' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'}">
+                  ${st}
+                </button>
+              `).join('')}
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-slate-400">Pad:</span>
+              <input type="range" min="0" max="24" value="${rule.padding}" data-policy-pad="${clsKey}" class="w-16 accent-cyan-400 cursor-pointer" />
+              <span class="text-[11px] mono text-slate-300 w-7 text-right">${rule.padding}px</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      // Attach listeners to dynamically created policy controls
+      container.querySelectorAll('[data-policy-tier]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const cls = btn.getAttribute('data-policy-cls');
+          const tier = btn.getAttribute('data-policy-tier');
+          state.policies[cls].tier = tier;
+          renderPolicyCards();
+          syncPolicyToBackend(cls);
+        });
+      });
+
+      container.querySelectorAll('[data-policy-style]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const cls = btn.getAttribute('data-policy-cls');
+          const style = btn.getAttribute('data-policy-style');
+          state.policies[cls].style = style;
+          renderPolicyCards();
+          syncPolicyToBackend(cls);
+        });
+      });
+
+      container.querySelectorAll('[data-policy-pad]').forEach((slider) => {
+        slider.addEventListener('input', () => {
+          const cls = slider.getAttribute('data-policy-pad');
+          state.policies[cls].padding = parseInt(slider.value, 10) || 0;
+          renderPolicyCards();
+          syncPolicyToBackend(cls);
+        });
+      });
+    }
+
+    function renderClassBreakdown() {
+      const container = document.getElementById('classBreakdownList');
+      const total = Object.values(state.cumulativeCounts).reduce((a, b) => a + b, 1);
+      container.innerHTML = Object.keys(state.policies).map((clsKey) => {
+        const rule = state.policies[clsKey];
+        const count = state.cumulativeCounts[clsKey] || 0;
+        const pct = Math.min(100, Math.round((count / total) * 100));
+        const barColor = rule.tier === 'SOFT' ? 'bg-amber-400' : 'bg-rose-500';
+        return `
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="font-medium text-slate-200">${rule.label} <span class="mono text-[10px] text-slate-400">[${rule.tier}]</span></span>
+              <span class="mono text-slate-300">${count} frames (${pct}%)</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+              <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // -------------------------------------------------------------------------
+    // FASTAPI BACKEND SYNC
+    // -------------------------------------------------------------------------
+    async function syncPolicyToBackend(clsKey) {
+      const rule = state.policies[clsKey];
+      showToast(`Updated ${clsKey}: Tier=${rule.tier}, Style=${rule.style}, Pad=${rule.padding}px`);
+      if (!state.backendOnline) return;
+      try {
+        await fetch(state.apiBaseUrl + '/policies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            class_name: clsKey,
+            tier: rule.tier,
+            style: rule.style,
+            padding: rule.padding
+          })
+        });
+      } catch (err) {
+        // Ignore network error in offline simulation mode
+      }
+    }
+
+    async function checkBackendConnection(showFeedback) {
+      const badge = document.getElementById('connectionBadge');
+      const dot = document.getElementById('connectionDot');
+      const text = document.getElementById('connectionText');
+      try {
+        const res = await fetch(state.apiBaseUrl + '/health');
+        if (!res.ok) throw new Error('Status ' + res.status);
+        const data = await res.json();
+        state.backendOnline = true;
+        badge.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-medium';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
+        text.textContent = `FASTAPI ONLINE (${(data.device || 'CPU').toUpperCase()})`;
+        if (showFeedback) showToast('Connected to Adrishya FastAPI server at ' + state.apiBaseUrl);
+      } catch (e) {
+        state.backendOnline = false;
+        badge.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium';
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+        text.textContent = 'SIMULATION ENGINE ACTIVE';
+        if (showFeedback) showToast('FastAPI offline — running interactive simulation in browser.');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // CANVAS SIMULATION & REDACTION RENDERER
+    // -------------------------------------------------------------------------
+    function drawUnredactedScene(ctx, w, h) {
+      // Tactical operations center background grid
+      ctx.fillStyle = '#0b1324';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = 'rgba(30, 58, 138, 0.28)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 32) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (let y = 0; y < h; y += 32) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      // Draw unredacted sensitive objects so masks visibly obscure real detail
+      state.entities.forEach((ent) => {
+        ctx.save();
+        if (ent.cls === 'face') {
+          // Draw stylized personnel head/shoulders and sensitive ID details
+          ctx.fillStyle = '#eab308';
+          ctx.beginPath();
+          ctx.arc(ent.x + ent.w / 2, ent.y + ent.h / 2, ent.w * 0.42, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(ent.x + ent.w * 0.28, ent.y + ent.h * 0.36, 10, 6);
+          ctx.fillRect(ent.x + ent.w * 0.58, ent.y + ent.h * 0.36, 10, 6);
+          ctx.fillStyle = '#dc2626';
+          ctx.font = 'bold 10px JetBrains Mono';
+          ctx.fillText('ID: COL. SHARMA', ent.x + 4, ent.y + ent.h - 6);
+        } else if (ent.cls === 'tactical_display' || ent.cls === 'laptop_screen') {
+          ctx.fillStyle = '#052e16';
+          ctx.fillRect(ent.x, ent.y, ent.w, ent.h);
+          ctx.strokeStyle = '#22c55e';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(ent.x, ent.y, ent.w, ent.h);
+          ctx.fillStyle = '#4ade80';
+          ctx.font = 'bold 11px JetBrains Mono';
+          ctx.fillText(ent.title, ent.x + 10, ent.y + 22);
+          ctx.font = '10px JetBrains Mono';
+          ctx.fillText('LAT: 19.2813 N | LON: 72.8645 E', ent.x + 10, ent.y + 42);
+          ctx.fillText('FREQ: 412.85 MHz [ENCRYPTED]', ent.x + 10, ent.y + 60);
+          ctx.beginPath();
+          ctx.arc(ent.x + ent.w - 40, ent.y + ent.h - 35, 22, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (ent.cls === 'confidential_doc') {
+          ctx.fillStyle = '#fef3c7';
+          ctx.fillRect(ent.x, ent.y, ent.w, ent.h);
+          ctx.fillStyle = '#b91c1c';
+          ctx.font = 'bold 10px Inter';
+          ctx.fillText('CLASSIFIED // DEFENSE', ent.x + 8, ent.y + 18);
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(ent.x + 8, ent.y + 28, ent.w - 20, 4);
+          ctx.fillRect(ent.x + 8, ent.y + 40, ent.w - 32, 4);
+          ctx.fillRect(ent.x + 8, ent.y + 52, ent.w - 16, 4);
+          ctx.fillRect(ent.x + 8, ent.y + 64, ent.w - 28, 4);
+        } else {
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(ent.x, ent.y, ent.w, ent.h);
+          ctx.strokeStyle = '#38bdf8';
+          ctx.strokeRect(ent.x, ent.y, ent.w, ent.h);
+          ctx.fillStyle = '#38bdf8';
+          ctx.font = 'bold 10px JetBrains Mono';
+          ctx.fillText(ent.title, ent.x + 6, ent.y + 24);
+          ctx.fillText('PIN: 8492-01', ent.x + 6, ent.y + 45);
+        }
+        ctx.restore();
+      });
+    }
+
+    function applyMaskToRegion(ctx, x, y, w, h, style, tier, clsName) {
+      if (style === 'GAUSSIAN') {
+        // Multi-pass frosted blur overlay
+        ctx.save();
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
+        ctx.fillRect(x, y, w, h);
+        for (let r = 0; r < h; r += 8) {
+          for (let c = 0; c < w; c += 8) {
+            const shade = ((r + c + state.frameIdx) % 3 === 0)
+              ? 'rgba(56, 189, 248, 0.22)'
+              : 'rgba(148, 163, 184, 0.25)';
+            ctx.fillStyle = shade;
+            ctx.fillRect(x + c, y + r, 7, 7);
+          }
+        }
+        ctx.restore();
+      } else if (style === 'PIXELATE') {
+        const blockSize = 12;
+        for (let py = y; py < y + h; py += blockSize) {
+          for (let px = x; px < x + w; px += blockSize) {
+            const v = ((px * 7 + py * 13) % 85) + 35;
+            ctx.fillStyle = `rgb(${v}, ${v + 12}, ${v + 28})`;
+            ctx.fillRect(px, py, Math.min(blockSize, x + w - px), Math.min(blockSize, y + h - py));
+          }
+        }
+      } else {
+        // SOLID tactical block
+        ctx.fillStyle = '#14161c';
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = '#dc2626';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
+        ctx.fillStyle = '#fca5a5';
+        ctx.font = 'bold 11px JetBrains Mono';
+        ctx.fillText(`${tier}:${clsName.toUpperCase()}`, x + 8, y + h / 2 + 4);
+      }
+    }
+
+    function drawCornerBox(ctx, x, y, w, h, tier, labelText) {
+      const color = tier === 'SOFT' ? '#f59e0b' : '#ef4444';
+      const len = Math.min(18, w * 0.25, h * 0.25);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+
+      // Top-left
+      ctx.beginPath();
+      ctx.moveTo(x, y + len);
+      ctx.lineTo(x, y);
+      ctx.lineTo(x + len, y);
+      // Top-right
+      ctx.moveTo(x + w - len, y);
+      ctx.lineTo(x + w, y);
+      ctx.lineTo(x + w, y + len);
+      // Bottom-left
+      ctx.moveTo(x, y + h - len);
+      ctx.lineTo(x, y + h);
+      ctx.lineTo(x + len, y + h);
+      // Bottom-right
+      ctx.moveTo(x + w - len, y + h);
+      ctx.lineTo(x + w, y + h);
+      ctx.lineTo(x + w, y + h - len);
+      ctx.stroke();
+
+      // Label banner
+      ctx.font = 'bold 10px JetBrains Mono';
+      const tw = ctx.measureText(labelText).width + 10;
+      const ly = Math.max(18, y - 4);
+      ctx.fillStyle = color;
+      ctx.fillRect(x, ly - 14, tw, 15);
+      ctx.fillStyle = '#090d16';
+      ctx.fillText(labelText, x + 5, ly - 3);
+    }
+
+    function stepSimulation() {
+      const simCanvas = document.getElementById('simCanvas');
+      const forensicCanvas = document.getElementById('forensicCanvas');
+      const ctx = simCanvas.getContext('2d');
+      const fCtx = forensicCanvas.getContext('2d');
+      const w = simCanvas.width;
+      const h = simCanvas.height;
+
+      if (!state.simPaused) {
+        state.frameIdx += 1;
+        state.entities.forEach((ent) => {
+          ent.x += ent.vx;
+          ent.y += ent.vy;
+          if (ent.x < 20 || ent.x + ent.w > w - 20) ent.vx *= -1;
+          if (ent.y < 45 || ent.y + ent.h > h - 25) ent.vy *= -1;
+        });
+      }
+
+      // Draw base scene on both canvases
+      drawUnredactedScene(ctx, w, h);
+      drawUnredactedScene(fCtx, w, h);
+
+      let softCount = 0;
+      let hardCount = 0;
+      const tableRows = [];
+
+      state.entities.forEach((ent) => {
+        const rule = state.policies[ent.cls];
+        const activeTier = state.tierOverride !== 'DEFAULT' ? state.tierOverride : rule.tier;
+        const activeStyle = state.styleOverride !== 'DEFAULT' ? state.styleOverride : rule.style;
+        const pad = rule.padding;
+
+        const rx = Math.max(0, Math.round(ent.x - pad));
+        const ry = Math.max(0, Math.round(ent.y - pad));
+        const rw = Math.min(w - rx, Math.round(ent.w + pad * 2));
+        const rh = Math.min(h - ry, Math.round(ent.h + pad * 2));
+
+        if (activeTier === 'SOFT') {
+          softCount += 1;
+          if (!state.simPaused && state.frameIdx % 18 === 0) {
+            state.vaultTotalRecords += 1;
+            const fakeNonce = Math.random().toString(16).substring(2, 10) + Math.random().toString(16).substring(2, 10);
+            const fakeHmac = Math.random().toString(16).substring(2, 14).toUpperCase();
+            state.vaultLog.unshift({
+              frame: state.frameIdx,
+              trackId: ent.id,
+              cls: ent.cls,
+              bbox: `[${rx},${ry},${rx + rw},${ry + rh}]`,
+              nonce: fakeNonce,
+              hmac: fakeHmac
+            });
+            if (state.vaultLog.length > 18) state.vaultLog.pop();
+          }
+        } else {
+          hardCount += 1;
+        }
+
+        // Apply mask on main live canvas
+        applyMaskToRegion(ctx, rx, ry, rw, rh, activeStyle, activeTier, ent.cls);
+
+        // On Forensic canvas: if unlocked, SOFT regions stay unredacted (restored!), HARD stay masked
+        if (!(state.forensicUnlocked && activeTier === 'SOFT')) {
+          applyMaskToRegion(fCtx, rx, ry, rw, rh, activeStyle, activeTier, ent.cls);
+        }
+
+        if (state.drawBoxes) {
+          const tag = `ID:${ent.id} ${ent.cls} [${activeTier}|${activeStyle.slice(0, 4)}]`;
+          drawCornerBox(ctx, rx, ry, rw, rh, activeTier, tag);
+          const fTag = (state.forensicUnlocked && activeTier === 'SOFT')
+            ? `ID:${ent.id} ${ent.cls} [RESTORED VIA KEY]`
+            : tag;
+          drawCornerBox(fCtx, rx, ry, rw, rh, activeTier, fTag);
+        }
+
+        const tierBadge = activeTier === 'SOFT'
+          ? '<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">SOFT</span>'
+          : '<span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">HARD</span>';
+
+        tableRows.push(`
+          <tr>
+            <td class="py-1.5 px-2.5 text-cyan-300">#${ent.id}</td>
+            <td class="py-1.5 px-2.5 text-slate-200">${ent.cls}</td>
+            <td class="py-1.5 px-2.5">${tierBadge}</td>
+            <td class="py-1.5 px-2.5 text-slate-300">${activeStyle}</td>
+            <td class="py-1.5 px-2.5 text-slate-400">[${rx}, ${ry}, ${rx + rw}, ${ry + rh}]</td>
+            <td class="py-1.5 px-2.5 text-right text-emerald-400">${(ent.conf * 100).toFixed(0)}%</td>
+          </tr>
+        `);
+      });
+
+      // Top HUD banner on canvases
+      ctx.fillStyle = 'rgba(9, 13, 22, 0.85)';
+      ctx.fillRect(12, 10, 410, 26);
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 12px JetBrains Mono';
+      ctx.fillText(`FPS: ${state.fpsEma.toFixed(1)} | Soft (Encrypted): ${softCount} | Hard (Permanent): ${hardCount}`, 20, 27);
+
+      fCtx.fillStyle = 'rgba(9, 13, 22, 0.88)';
+      fCtx.fillRect(12, 10, 490, 26);
+      fCtx.fillStyle = state.forensicUnlocked ? '#34d399' : '#f87171';
+      fCtx.font = 'bold 12px JetBrains Mono';
+      fCtx.fillText(
+        state.forensicUnlocked
+          ? `FORENSIC KEY VERIFIED: Restored ${softCount} SOFT ROIs | ${hardCount} HARD ROIs Permanent`
+          : `REDACTED ARCHIVE: Authenticate 256-Bit Key to Restore ${softCount} SOFT ROIs`,
+        20,
+        27
+      );
+
+      // Update DOM KPIs & tables periodically
+      if (state.frameIdx % 6 === 0) {
+        state.fpsEma = 27.5 + Math.sin(state.frameIdx * 0.08) * 1.8;
+        document.getElementById('kpiFps').textContent = state.fpsEma.toFixed(1);
+        document.getElementById('kpiSoftCount').textContent = String(softCount);
+        document.getElementById('kpiHardCount').textContent = String(hardCount);
+        document.getElementById('kpiVaultRecords').textContent = String(state.vaultTotalRecords);
+        document.getElementById('activeTracksTableBody').innerHTML = tableRows.join('');
+        renderVaultPackets();
+      }
+
+      if (state.frameIdx % 30 === 0 && telemetryChart) {
+        const nowLabel = 'F' + state.frameIdx;
+        telemetryChart.data.labels.push(nowLabel);
+        telemetryChart.data.datasets[0].data.push(Number(state.fpsEma.toFixed(1)));
+        telemetryChart.data.datasets[1].data.push(softCount);
+        telemetryChart.data.datasets[2].data.push(hardCount);
+        if (telemetryChart.data.labels.length > 16) {
+          telemetryChart.data.labels.shift();
+          telemetryChart.data.datasets.forEach((ds) => ds.data.shift());
+        }
+        telemetryChart.update('none');
+      }
+
+      requestAnimationFrame(stepSimulation);
+    }
+
+    function renderVaultPackets() {
+      const list = document.getElementById('vaultPacketsList');
+      if (state.vaultLog.length === 0) {
+        list.innerHTML = '<div class="text-slate-500 py-4 text-center">Waiting for SOFT redaction packets...</div>';
+        return;
+      }
+      list.innerHTML = state.vaultLog.map((pkt) => `
+        <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800/90 flex flex-col gap-1">
+          <div class="flex items-center justify-between text-amber-300">
+            <span>FRAME #${pkt.frame} • ID:${pkt.trackId} (${pkt.cls})</span>
+            <span class="text-[10px] text-emerald-400">AEAD-OK</span>
+          </div>
+          <div class="text-slate-400 flex justify-between">
+            <span>BBox: ${pkt.bbox}</span>
+            <span>Nonce: ${pkt.nonce}</span>
+          </div>
+          <div class="text-[10px] text-slate-500 truncate">HMAC-SHA256: ${pkt.hmac}...</div>
+        </div>
+      `).join('');
+    }
+
+    // -------------------------------------------------------------------------
+    // CHART.JS INITIALIZATION
+    // -------------------------------------------------------------------------
+    function initTelemetryChart() {
+      const canvas = document.getElementById('telemetryChart');
+      if (!canvas || typeof Chart === 'undefined') return;
+      telemetryChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: ['F1', 'F30', 'F60', 'F90', 'F120', 'F150'],
+          datasets: [
+            {
+              label: 'Processing FPS',
+              data: [27.8, 28.4, 29.1, 28.0, 28.7, 28.5],
+              borderColor: '#38bdf8',
+              backgroundColor: 'rgba(56, 189, 248, 0.1)',
+              tension: 0.35,
+              fill: true
+            },
+            {
+              label: 'Soft Masked (Encrypted)',
+              data: [3, 3, 3, 3, 3, 3],
+              borderColor: '#f59e0b',
+              tension: 0.2
+            },
+            {
+              label: 'Hard Masked (Permanent)',
+              data: [2, 2, 2, 2, 2, 2],
+              borderColor: '#f43f5e',
+              tension: 0.2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#cbd5e1', font: { family: 'Inter', size: 11 } }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.25)' } },
+            y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.25)' }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // EVENT LISTENERS & NAVIGATION
+    // -------------------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      renderPolicyCards();
+      renderClassBreakdown();
+      initTelemetryChart();
+      checkBackendConnection(false);
+      requestAnimationFrame(stepSimulation);
+
+      // Tab Navigation
+      document.querySelectorAll('.nav-tab').forEach((tabBtn) => {
+        tabBtn.addEventListener('click', () => {
+          const targetId = tabBtn.getAttribute('data-tab');
+          document.querySelectorAll('.tab-panel').forEach((p) => p.classList.add('hidden'));
+          document.getElementById(targetId).classList.remove('hidden');
+
+          document.querySelectorAll('.nav-tab').forEach((b) => {
+            b.className = 'nav-tab px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition';
+          });
+          tabBtn.className = 'nav-tab px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 border-cyan-400 text-cyan-300 whitespace-nowrap transition';
+        });
+      });
+
+      // Stream Source Switchers
+      const simCanvas = document.getElementById('simCanvas');
+      const mjpegImg = document.getElementById('mjpegStreamImg');
+      const errOverlay = document.getElementById('streamErrorOverlay');
+      const srcLabel = document.getElementById('streamSourceLabel');
+      const btnSim = document.getElementById('btnSourceSim');
+      const btnApi = document.getElementById('btnSourceFastApi');
+
+      function activateSimSource() {
+        state.streamMode = 'SIM';
+        mjpegImg.src = '';
+        mjpegImg.classList.add('hidden');
+        errOverlay.classList.add('hidden');
+        simCanvas.classList.remove('hidden');
+        srcLabel.textContent = '[Simulated Defense Ops Room]';
+        btnSim.className = 'px-2.5 py-1 rounded text-xs font-medium bg-cyan-600 text-white transition';
+        btnApi.className = 'px-2.5 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition';
+      }
+
+      btnSim.addEventListener('click', activateSimSource);
+      document.getElementById('btnFallbackToSim').addEventListener('click', activateSimSource);
+
+      btnApi.addEventListener('click', () => {
+        state.streamMode = 'FASTAPI';
+        simCanvas.classList.add('hidden');
+        errOverlay.classList.add('hidden');
+        mjpegImg.classList.remove('hidden');
+        srcLabel.textContent = `[${state.apiBaseUrl}/stream]`;
+        btnApi.className = 'px-2.5 py-1 rounded text-xs font-medium bg-cyan-600 text-white transition';
+        btnSim.className = 'px-2.5 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition';
+        mjpegImg.src = state.apiBaseUrl + '/stream?t=' + Date.now();
+      });
+
+      mjpegImg.addEventListener('error', () => {
+        if (state.streamMode === 'FASTAPI') {
+          document.getElementById('errApiUrl').textContent = state.apiBaseUrl;
+          errOverlay.classList.remove('hidden');
+        }
+      });
+
+      // Style Override Buttons
+      document.querySelectorAll('.style-override-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.styleOverride = btn.getAttribute('data-style-override');
+          document.querySelectorAll('.style-override-btn').forEach((b) => {
+            b.className = 'style-override-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700';
+          });
+          btn.className = 'style-override-btn px-2.5 py-1 rounded text-xs font-semibold bg-cyan-600 text-white';
+          showToast('Global Mask Style Override: ' + state.styleOverride);
+        });
+      });
+
+      // Tier Override Buttons
+      document.querySelectorAll('.tier-override-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.tierOverride = btn.getAttribute('data-tier-override');
+          document.querySelectorAll('.tier-override-btn').forEach((b) => {
+            b.className = 'tier-override-btn py-2 px-3 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700';
+          });
+          btn.className = 'tier-override-btn py-2 px-3 rounded-lg text-xs font-semibold bg-cyan-600 text-white border border-cyan-500/40';
+          showToast('Global Security Tier Override: ' + state.tierOverride);
+        });
+      });
+
+      // Boxes & Pause Controls
+      const btnBoxes = document.getElementById('btnToggleBoxes');
+      btnBoxes.addEventListener('click', () => {
+        state.drawBoxes = !state.drawBoxes;
+        btnBoxes.textContent = state.drawBoxes ? 'Boxes: ON' : 'Boxes: OFF';
+      });
+
+      const btnPause = document.getElementById('btnPauseSim');
+      btnPause.addEventListener('click', () => {
+        state.simPaused = !state.simPaused;
+        btnPause.textContent = state.simPaused ? 'Resume Feed' : 'Pause Feed';
+      });
+
+      // Reset Policies
+      document.getElementById('btnResetPolicies').addEventListener('click', () => {
+        state.policies = JSON.parse(JSON.stringify(DEFAULT_POLICIES));
+        state.styleOverride = 'DEFAULT';
+        state.tierOverride = 'DEFAULT';
+        renderPolicyCards();
+        showToast('Security policies reset to Defense defaults.');
+      });
+
+      // Forensic Restoration Controls
+      const btnRestore = document.getElementById('btnToggleForensicRestore');
+      const authBadge = document.getElementById('restoreAuthBadge');
+      const keyInput = document.getElementById('forensicKeyInput');
+
+      btnRestore.addEventListener('click', () => {
+        const entered = keyInput.value.trim();
+        if (!entered || entered !== state.masterKey) {
+          state.forensicUnlocked = false;
+          authBadge.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40 mono';
+          authBadge.textContent = 'HMAC AUTH FAILED (INVALID KEY)';
+          showToast('HMAC-SHA256 authentication failed: Invalid cryptographic key!');
+          return;
+        }
+        state.forensicUnlocked = !state.forensicUnlocked;
+        if (state.forensicUnlocked) {
+          authBadge.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 mono';
+          authBadge.textContent = 'UNLOCKED (SOFT ROIs RESTORED)';
+          btnRestore.textContent = 'Lock & Re-Mask SOFT Regions';
+          showToast('256-Bit Key Verified: SOFT regions restored; HARD regions remain redacted.');
+        } else {
+          authBadge.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30 mono';
+          authBadge.textContent = 'LOCKED (REDACTED VIEW)';
+          btnRestore.textContent = 'Authenticate & Restore SOFT Regions';
+          showToast('Forensic view locked.');
+        }
+      });
+
+      document.getElementById('btnSimulateWrongKey').addEventListener('click', () => {
+        keyInput.value = 'corrupted-unauthorized-key-0000';
+        state.forensicUnlocked = false;
+        authBadge.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40 mono';
+        authBadge.textContent = 'HMAC AUTH FAILED (INVALID KEY)';
+        btnRestore.textContent = 'Authenticate & Restore SOFT Regions';
+        showToast('Simulated unauthorized key attempt: HMAC mismatch blocked restoration!');
+      });
+
+      document.getElementById('btnClearVaultLog').addEventListener('click', () => {
+        state.vaultLog = [];
+        renderVaultPackets();
+      });
+
+      // Backend Modal
+      const modal = document.getElementById('backendModal');
+      document.getElementById('btnToggleBackendModal').addEventListener('click', () => {
+        document.getElementById('inputApiBaseUrl').value = state.apiBaseUrl;
+        modal.classList.remove('hidden');
+      });
+      document.getElementById('btnCloseBackendModal').addEventListener('click', () => {
+        modal.classList.add('hidden');
+      });
+      document.getElementById('btnTestBackendPing').addEventListener('click', () => {
+        state.apiBaseUrl = document.getElementById('inputApiBaseUrl').value.trim().replace(/\/+$/, '');
+        modal.classList.add('hidden');
+        checkBackendConnection(true);
+      });
+
+      // Copy CLI Commands
+      document.querySelectorAll('.copy-cmd-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const cmd = btn.getAttribute('data-copy');
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(cmd).then(() => showToast('Copied: ' + cmd));
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = cmd;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('Copied: ' + cmd);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
